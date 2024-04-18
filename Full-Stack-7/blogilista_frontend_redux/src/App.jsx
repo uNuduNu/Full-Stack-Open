@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import BlogList from './components/BlogList'
@@ -7,34 +8,32 @@ import BlogsHeader from './components/BlogsHeader'
 import AddBlog from './components/AddBlog'
 import StatusMessage from './components/StatusMessage'
 import Togglable from './components/Togglable'
+import { setNotification } from './reducers/notificationReducer'
+import { initializeBlogs, createBlog } from './reducers/blogReducer'
+import { setUser } from './reducers/userReducer'
 
-function App() {
-    const userStorageKey = 'blogUser'
+const App = () => {
+    const dispatch = useDispatch()
 
-    const [user, setUser] = useState(undefined)
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
-    const [blogs, setBlogs] = useState([])
-    const [message, setMessage] = useState(undefined)
-    const [messageStatus, setMessageStatus] = useState(true)
+    const user = useSelector(({ loggedUser, blogs }) => {
+        return loggedUser
+    })
 
     useEffect(() => {
-        blogService
-            .getAllBlogs()
-            .then((retrievedBlogs) => {
-                setBlogs(retrievedBlogs)
-            })
-            .catch((error) =>
-                showMessage('Failed to get blogs from server', error)
-            )
+        dispatch(initializeBlogs())
     }, [])
+
+    const userStorageKey = 'blogUser'
+
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
 
     useEffect(() => {
         const loggedUserJSON = window.localStorage.getItem(userStorageKey)
 
         if (loggedUserJSON) {
             const loggedUser = JSON.parse(loggedUserJSON)
-            setUser(loggedUser)
+            dispatch(setUser(loggedUser.username))
             blogService.setToken(loggedUser.token)
         }
     }, [])
@@ -44,52 +43,9 @@ function App() {
     const addBlogToggleForm = useRef()
     const addBlogForm = useRef()
 
-    const showMessage = (text, error) => {
-        if (error !== undefined) console.log(error)
-
-        setMessage(text)
-        setMessageStatus(error === undefined)
-
-        setTimeout(() => {
-            setMessage(undefined)
-        }, 2000)
-    }
-
-    const removeBlog = (title, id) => {
-        if (false === window.confirm(`Delete ${title}?`)) {
-            return
-        }
-        blogService
-            .removeBlog(id)
-            .then(() => {
-                setBlogs(blogs.filter((u) => u.id !== id))
-                showMessage(`Removed ${title}`, undefined)
-            })
-            .catch((error) =>
-                showMessage(`Failed to remove blog: ${id}`, error)
-            )
-    }
-
-    const modifyBlog = (updatedBlog) => {
-        blogService
-            .modifyBlog(updatedBlog)
-            .then((blog) => {
-                setBlogs(blogs.map((b) => (b.id !== blog.id ? b : blog)))
-            })
-            .catch((error) => {
-                if (error.response.data.error.includes('jwt')) {
-                    showMessage('wrong credentials', error)
-                    setUser(undefined)
-                    blogService.setToken(undefined)
-                } else {
-                    showMessage('failed to modify blog', error)
-                }
-            })
-    }
-
     const logoutHandler = () => {
         window.localStorage.removeItem(userStorageKey)
-        setUser(undefined)
+        dispatch(setUser(''))
         blogService.setToken(undefined)
     }
 
@@ -104,17 +60,17 @@ function App() {
                 JSON.stringify(loggedUser)
             )
 
-            setUser(loggedUser)
+            dispatch(setUser(loggedUser.username))
             blogService.setToken(loggedUser.token)
             setUsername('')
             setPassword('')
         } catch (exception) {
-            showMessage('wrong credentials', exception)
+            dispatch(setNotification(['wrong credentials']))
 
             return
         }
 
-        showMessage('logged in')
+        dispatch(setNotification(['logged in']))
     }
 
     const usernameHandler = ({ target }) => {
@@ -125,43 +81,21 @@ function App() {
         setPassword(target.value)
     }
 
-    const createBlog = (newBlog) => {
-        blogService
-            .addBlog(newBlog)
-            .then((blog) => {
-                setBlogs(blogs.concat(blog))
-            })
-            .catch((error) => {
-                if (error.response.data.error.includes('jwt')) {
-                    showMessage('wrong credentials', error)
-                    setUser(undefined)
-                    blogService.setToken(undefined)
-                } else {
-                    showMessage('failed to add blog', error)
-                }
-                return
-            })
+    const createNewBlog = (newBlog) => {
+        dispatch(createBlog(newBlog))
 
         addBlogToggleForm.current.toggleVisibility()
-        showMessage('blog added')
+        dispatch(setNotification(['blog added']))
     }
 
     const cancelAddBlog = () => {
         addBlogForm.current.resetBlog()
     }
 
-    const messageBox = () => {
+    if (user === '') {
         return (
             <div style={mainStyle}>
-                <StatusMessage text={message} success={messageStatus} />
-            </div>
-        )
-    }
-
-    if (user === undefined) {
-        return (
-            <div style={mainStyle}>
-                {message !== undefined && messageBox()}
+                <StatusMessage />
                 <LoginForm
                     loginHandler={loginHandler}
                     username={username}
@@ -173,29 +107,19 @@ function App() {
         )
     }
 
-    const sortedByLikes = blogs.toSorted((a, b) => b.likes - a.likes)
-
     return (
         <div style={mainStyle}>
-            <BlogsHeader
-                username={user.username}
-                logoutHandler={logoutHandler}
-            />
-            {message !== undefined && messageBox()}
+            <BlogsHeader username={user} logoutHandler={logoutHandler} />
+            <StatusMessage />
             <Togglable
                 buttonLabel="add blog"
                 cancelHandler={cancelAddBlog}
                 ref={addBlogToggleForm}
             >
-                <AddBlog createBlog={createBlog} ref={addBlogForm} />
+                <AddBlog createBlog={createNewBlog} ref={addBlogForm} />
             </Togglable>
             <h2>Blogs</h2>
-            <BlogList
-                blogs={sortedByLikes}
-                loggedUser={user.username}
-                removeHandler={removeBlog}
-                modifyHandler={modifyBlog}
-            />
+            <BlogList loggedUser={user.username} />
         </div>
     )
 }

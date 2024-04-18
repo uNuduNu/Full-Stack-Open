@@ -8,35 +8,35 @@ const setToken = (newToken) => {
     token = `Bearer ${newToken}`
 }
 
-const getAllBlogs = () => {
-    const promise = axios.get(baseUrl)
-    return promise.then((response) => response.data)
+const getAllBlogs = async () => {
+    const response = await axios.get(baseUrl)
+    return response.data
 }
 
-const getBlog = (id) => {
-    const promise = axios.get(`${baseUrl}/${id}`)
-    return promise.then((response) => response.data)
+const getBlog = async (id) => {
+    const response = await axios.get(`${baseUrl}/${id}`)
+    return response.data
 }
-const addBlog = (blog) => {
+const addBlog = async (blog) => {
     const config = {
         headers: { Authorization: token }
     }
-    const promise = axios.post(baseUrl, blog, config)
-    return promise.then((response) => response.data)
+    const response = await axios.post(baseUrl, blog, config)
+    return response.data
 }
 
-const removeBlog = (id) => {
+const removeBlog = async (id) => {
     const config = {
         headers: { Authorization: token }
     }
 
-    const promise = axios.delete(`${baseUrl}/${id}`, config)
-    return promise.then((response) => response.data)
+    const response = await axios.delete(`${baseUrl}/${id}`, config)
+    return response.data
 }
 
-const modifyBlog = (blog) => {
-    const promise = axios.put(`${baseUrl}/${blog.id}`, blog)
-    return promise.then((response) => response.data)
+const modifyBlog = async (blog) => {
+    const response = await axios.put(`${baseUrl}/${blog.id}`, blog)
+    return response.data
 }
 
 export default {

@@ -1,36 +1,30 @@
 import Blog from './Blog'
-import PropTypes from 'prop-types'
+import { useSelector } from 'react-redux'
 
-const BlogList = ({ loggedUser, blogs, removeHandler, modifyHandler }) => {
-    if (blogs === null) {
+const BlogList = () => {
+    const sortedByLikes = useSelector(({ blogs }) => {
+        return blogs
+    }).toSorted((a, b) => b.likes - a.likes)
+
+    if (sortedByLikes === null) {
         return null
     }
 
     return (
         <div>
-            {blogs.map((blog) => (
+            {sortedByLikes.map((blog) => (
                 <Blog
                     key={blog.id}
-                    adder={blog.user}
+                    adder={blog.user.username}
                     author={blog.author}
                     title={blog.title}
                     url={blog.url}
                     likes={blog.likes}
                     id={blog.id}
-                    enableRemove={blog.user.username === loggedUser}
-                    removeHandler={removeHandler}
-                    modifyHandler={modifyHandler}
                 />
             ))}
         </div>
     )
-}
-
-BlogList.propTypes = {
-    loggedUser: PropTypes.string.isRequired,
-    blogs: PropTypes.array.isRequired,
-    removeHandler: PropTypes.func.isRequired,
-    modifyHandler: PropTypes.func.isRequired
 }
 
 export default BlogList

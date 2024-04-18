@@ -1,27 +1,26 @@
-import PropTypes from 'prop-types'
+import { useSelector } from 'react-redux'
 
-const StatusMessage = ({ text, success }) => {
-    if (text !== undefined) {
-        console.log(text)
+const StatusMessage = () => {
+    const notification = useSelector(({ notification }) => {
+        return notification
+    })
+
+    if (notification !== undefined && notification[0] !== '') {
+        console.log(notification[0])
         const messageStyle = {
             color: 'black',
-            backgroundColor: success ? 'lightgreen' : 'white',
+            backgroundColor: notification[1] ? 'white' : 'lightgreen',
             fontSize: 20,
-            border: success ? '1px solid black' : '2px solid red',
+            border: notification[1] ? '2px solid red' : '1px solid black',
             borderRadius: 5,
             padding: 5,
             margin: 1
         }
 
-        return <div style={messageStyle}>{text}</div>
+        return <div style={messageStyle}>{notification[0]}</div>
     }
 
     return undefined
-}
-
-StatusMessage.propTypes = {
-    text: PropTypes.string.isRequired,
-    success: PropTypes.bool.isRequired
 }
 
 export default StatusMessage
