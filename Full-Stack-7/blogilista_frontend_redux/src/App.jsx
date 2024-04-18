@@ -15,7 +15,7 @@ import { setUser } from './reducers/userReducer'
 const App = () => {
     const dispatch = useDispatch()
 
-    const user = useSelector(({ loggedUser, blogs }) => {
+    const user = useSelector(({ loggedUser }) => {
         return loggedUser
     })
 
