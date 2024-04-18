@@ -1,0 +1,7 @@
+POST https://fso-phonebook-backend-undun.onrender.com/api/persons
+Content-Type: application/json
+
+{
+  "name": "Roope",
+  "number": "345 345345"
+}

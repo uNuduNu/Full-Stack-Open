@@ -1,0 +1,10 @@
+PUT http://localhost:3001/api/blogs/6606c45f8e1117d23d339b4d 
+Content-Type: application/json
+
+{
+    "title": "A Valid Blog",
+    "author": "etry",
+    "url": "a.valid.url",
+    "likes": "35",
+    "id": "6606c45f8e1117d23d339b4d"
+}
