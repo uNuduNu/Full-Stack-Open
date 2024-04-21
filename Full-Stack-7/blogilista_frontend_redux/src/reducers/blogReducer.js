@@ -33,7 +33,7 @@ export const initializeBlogs = () => {
             dispatch(setBlogs(blogs))
         }
         catch(error) {
-            if (error.response.data.error.includes('jwt')) {
+            if (error.response.data.error.includes('jwt') || error.response.data.error.includes('token expired')) {
                 dispatch(
                     setNotification(['wrong credentials', error.message])
                 )
@@ -58,7 +58,7 @@ export const createBlog = content => {
             dispatch(addBlog(newBlog))
         }
         catch(error) {
-            if (error.response.data.error.includes('jwt')) {
+            if (error.response.data.error.includes('jwt') || error.response.data.error.includes('token expired')) {
                 dispatch(
                     setNotification(['wrong credentials', error.message])
                 )
@@ -77,7 +77,7 @@ export const createBlog = content => {
 }
 
 export const addLike = blogToLike => {
-    const addedLike = { ...blogToLike, likes: blogToLike.likes +1 }
+    const addedLike = { ...blogToLike, likes: blogToLike.likes }
 
     return async dispatch => {
         try {
@@ -85,7 +85,7 @@ export const addLike = blogToLike => {
             dispatch(changeBlog(modifiedBlog))
         }
         catch(error) {
-            if (error.response.data.error.includes('jwt')) {
+            if (error.response.data.error.includes('jwt') || error.response.data.error.includes('token expired')) {
                 dispatch(
                     setNotification(['wrong credentials', error.message])
                 )
@@ -111,7 +111,7 @@ export const removeBlog = blogToRemoveId => {
             dispatch(deleteBlog(blogToRemoveId))
         }
         catch(error) {
-            if (error.response.data.error.includes('jwt')) {
+            if (error.response.data.error.includes('jwt') || error.response.data.error.includes('token expired')) {
                 dispatch(
                     setNotification(['wrong credentials', error.message])
                 )

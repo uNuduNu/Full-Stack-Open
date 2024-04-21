@@ -1,16 +1,19 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import blogService from './services/blogs'
 import loginService from './services/login'
-import BlogList from './components/BlogList'
 import LoginForm from './components/LoginForm'
 import BlogsHeader from './components/BlogsHeader'
-import AddBlog from './components/AddBlog'
 import StatusMessage from './components/StatusMessage'
-import Togglable from './components/Togglable'
+import BlogView from './components/BlogView'
+import Blog from './components/Blog'
+import UserView from './components/UserView'
+import UserDetails from './components/UserDetails'
 import { setNotification } from './reducers/notificationReducer'
-import { initializeBlogs, createBlog } from './reducers/blogReducer'
+import { initializeBlogs } from './reducers/blogReducer'
+import { initializeUsers } from './reducers/usersReducer'
 import { setUser } from './reducers/userReducer'
+import { Routes, Route } from 'react-router-dom'
 
 const App = () => {
     const dispatch = useDispatch()
@@ -21,6 +24,10 @@ const App = () => {
 
     useEffect(() => {
         dispatch(initializeBlogs())
+    }, [])
+
+    useEffect(() => {
+        dispatch(initializeUsers())
     }, [])
 
     const userStorageKey = 'blogUser'
@@ -39,9 +46,6 @@ const App = () => {
     }, [])
 
     const mainStyle = { margins: 0, padding: 0 }
-
-    const addBlogToggleForm = useRef()
-    const addBlogForm = useRef()
 
     const logoutHandler = () => {
         window.localStorage.removeItem(userStorageKey)
@@ -81,17 +85,6 @@ const App = () => {
         setPassword(target.value)
     }
 
-    const createNewBlog = (newBlog) => {
-        dispatch(createBlog(newBlog))
-
-        addBlogToggleForm.current.toggleVisibility()
-        dispatch(setNotification(['blog added']))
-    }
-
-    const cancelAddBlog = () => {
-        addBlogForm.current.resetBlog()
-    }
-
     if (user === '') {
         return (
             <div style={mainStyle}>
@@ -111,15 +104,12 @@ const App = () => {
         <div style={mainStyle}>
             <BlogsHeader username={user} logoutHandler={logoutHandler} />
             <StatusMessage />
-            <Togglable
-                buttonLabel="add blog"
-                cancelHandler={cancelAddBlog}
-                ref={addBlogToggleForm}
-            >
-                <AddBlog createBlog={createNewBlog} ref={addBlogForm} />
-            </Togglable>
-            <h2>Blogs</h2>
-            <BlogList loggedUser={user.username} />
+            <Routes>
+                <Route path="/" element={<BlogView />} />
+                <Route path="/blogs/:id" element={<Blog />} />
+                <Route path="/users" element={<UserView />} />
+                <Route path="/users/:id" element={<UserDetails />} />
+            </Routes>
         </div>
     )
 }

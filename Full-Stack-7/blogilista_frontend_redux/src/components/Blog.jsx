@@ -1,47 +1,49 @@
 import { useState } from 'react'
 import styles from './styles'
-import PropTypes from 'prop-types'
 import { removeBlog, addLike } from '../reducers/blogReducer'
 import { useDispatch, useSelector } from 'react-redux'
+import { useMatch, useNavigate } from 'react-router-dom'
 
-const Blog = ({ adder, title, author, url, likes, id }) => {
+const Blog = () => {
     const dispatch = useDispatch()
+    const navigate = useNavigate()
 
     const loggedUser = useSelector(({ loggedUser }) => {
         return loggedUser
     })
 
-    const [view, setView] = useState(false)
-    const [addedLikes, setAddedLikes] = useState(likes)
+    const blogs = useSelector(({ blogs }) => {
+        return blogs
+    })
+
+    const match = useMatch('/blogs/:id')
+    const matchedBlog = match
+        ? blogs.find((b) => b.id === match.params.id)
+        : undefined
+
+    const [addedLikes, setAddedLikes] = useState(
+        matchedBlog !== undefined ? matchedBlog.likes : 0
+    )
+
+    if (matchedBlog === undefined) return undefined
 
     const blogListStyle = {
         boxSizing: 'border-box',
-        display: 'grid',
-        gridTemplateColumns: adder === loggedUser ? '50% 43% 7%' : '50% 50%',
         borderTop: '1px solid #D8D8D8',
         padding: 4
-    }
-    const blogDetailsStyle = {
-        boxSizing: 'border-box',
-        display: 'grid',
-        gridTemplateColumns: '30% 30% 30% 10%',
-        borderTop: '1px solid #D8D8D8',
-        padding: 4
-    }
-
-    const viewDetails = () => {
-        setView(!view)
     }
 
     const addALike = () => {
         const blog = {
-            title: title,
-            author: author,
-            url: url,
+            title: matchedBlog.title,
+            author: matchedBlog.author,
+            url: matchedBlog.url,
             likes: addedLikes + 1,
-            id: id,
-            user: adder
+            id: matchedBlog.id,
+            user: matchedBlog.adder
         }
+
+        console.log('likes ' + blog.likes)
 
         dispatch(addLike(blog))
 
@@ -53,10 +55,7 @@ const Blog = ({ adder, title, author, url, likes, id }) => {
             return
         }
         dispatch(removeBlog(id))
-    }
-
-    const clipForDisplay = (data) => {
-        return data.length > 20 ? data.substring(0, 17) + '...' : data
+        navigate('/')
     }
 
     const removeButton = () => {
@@ -64,62 +63,37 @@ const Blog = ({ adder, title, author, url, likes, id }) => {
             <div>
                 <button
                     style={styles.buttonStyle}
-                    onClick={() => removeABlog(title, id)}
+                    onClick={() =>
+                        removeABlog(matchedBlog.title, matchedBlog.id)
+                    }
                     data-testid="delete"
                 >
-                    x
+                    remove
                 </button>
             </div>
         )
     }
 
-    const detailsView = () => {
-        return (
-            <div style={blogDetailsStyle}>
-                <div>{clipForDisplay(author)}</div>
-                <div>{clipForDisplay(url)}</div>
-                <div>{clipForDisplay('+' + addedLikes)}</div>
-                <div>
-                    <button
-                        style={styles.buttonStyle}
-                        onClick={() => addALike()}
-                        data-testid="likebutton"
-                    >
-                        like
-                    </button>
-                </div>
-                <div>{adder.name}</div>
-            </div>
-        )
-    }
-
     return (
-        <>
-            <div style={blogListStyle}>
-                <div data-testid="titlediv">{title}</div>
-                <div>
-                    <button
-                        style={styles.buttonStyle}
-                        onClick={() => viewDetails()}
-                        data-testid="details"
-                    >
-                        {view ? 'hide' : 'details...'}
-                    </button>
-                </div>
-                {adder === loggedUser && removeButton()}
+        <div style={blogListStyle}>
+            <h2 data-testid="titlediv">
+                {matchedBlog.title} {matchedBlog.author}
+            </h2>
+            <a href={matchedBlog.url}>{matchedBlog.url}</a>
+            <div>
+                {'+' + addedLikes}
+                <button
+                    style={styles.buttonStyle}
+                    onClick={() => addALike()}
+                    data-testid="likebutton"
+                >
+                    like
+                </button>
             </div>
-            {view && detailsView()}
-        </>
+            <div>{'added by ' + matchedBlog.user.username}</div>
+            {matchedBlog.user.username === loggedUser && removeButton()}
+        </div>
     )
-}
-
-Blog.propTypes = {
-    adder: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    author: PropTypes.string.isRequired,
-    url: PropTypes.string.isRequired,
-    likes: PropTypes.number.isRequired,
-    id: PropTypes.string.isRequired
 }
 
 export default Blog
