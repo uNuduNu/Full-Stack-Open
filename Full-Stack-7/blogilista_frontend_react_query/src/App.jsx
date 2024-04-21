@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import BlogList from './components/BlogList'
@@ -7,89 +8,118 @@ import BlogsHeader from './components/BlogsHeader'
 import AddBlog from './components/AddBlog'
 import StatusMessage from './components/StatusMessage'
 import Togglable from './components/Togglable'
+import { useNotificationDispatch } from './NotificationContext'
+import { useUserValue, useUserDispatch } from './UserContext'
 
 function App() {
     const userStorageKey = 'blogUser'
 
-    const [user, setUser] = useState(undefined)
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
-    const [blogs, setBlogs] = useState([])
-    const [message, setMessage] = useState(undefined)
-    const [messageStatus, setMessageStatus] = useState(true)
-
-    useEffect(() => {
-        blogService
-            .getAllBlogs()
-            .then((retrievedBlogs) => {
-                setBlogs(retrievedBlogs)
-            })
-            .catch((error) =>
-                showMessage('Failed to get blogs from server', error)
-            )
-    }, [])
-
-    useEffect(() => {
-        const loggedUserJSON = window.localStorage.getItem(userStorageKey)
-
-        if (loggedUserJSON) {
-            const loggedUser = JSON.parse(loggedUserJSON)
-            setUser(loggedUser)
-            blogService.setToken(loggedUser.token)
-        }
-    }, [])
-
-    const mainStyle = { margins: 0, padding: 0 }
 
     const addBlogToggleForm = useRef()
     const addBlogForm = useRef()
 
-    const showMessage = (text, error) => {
-        if (error !== undefined) console.log(error)
+    const result = useQuery({
+        queryKey: ['blogs'],
+        queryFn: blogService.getAllBlogs
+    })
 
-        setMessage(text)
-        setMessageStatus(error === undefined)
+    const blogs = result.data
 
-        setTimeout(() => {
-            setMessage(undefined)
-        }, 2000)
+    const queryClient = useQueryClient()
+
+    const changeBlogMutation = useMutation({
+        mutationFn: blogService.modifyBlog,
+        onSuccess: (changedBlog) => {
+            const qBlogs = queryClient.getQueryData(['blogs'])
+            queryClient.setQueryData(
+                ['blogs'],
+                qBlogs.map((b) => (b.id === changedBlog.id ? changedBlog : b))
+            )
+
+            showMessage(`Liked ${changedBlog.title}`)
+        },
+        onError: (error) => showMessage('Failed to modify blog', error)
+    })
+
+    const removeBlogMutation = useMutation({
+        mutationFn: blogService.removeBlog,
+        onSuccess: (id) => {
+            const qBlogs = queryClient.getQueryData(['blogs'])
+            queryClient.setQueryData(
+                ['blogs'],
+                qBlogs.filter((b) => b.id !== id.id)
+            )
+            showMessage('Removed blog', undefined)
+        },
+        onError: (error) => showMessage('Failed to remove blog', error)
+    })
+
+    const addBlogMutation = useMutation({
+        mutationFn: blogService.addBlog,
+        onSuccess: (newBlog) => {
+            const qBlogs = queryClient.getQueryData(['blogs'])
+            queryClient.setQueryData(['blogs'], qBlogs.concat(newBlog))
+            showMessage('blog added')
+            addBlogToggleForm.current.toggleVisibility()
+        },
+        onError: (error) => showMessage('failed to add blog', error)
+    })
+
+    const modifyBlog = (updatedBlog) => {
+        changeBlogMutation.mutate(updatedBlog)
     }
 
     const removeBlog = (title, id) => {
         if (false === window.confirm(`Delete ${title}?`)) {
             return
         }
-        blogService
-            .removeBlog(id)
-            .then(() => {
-                setBlogs(blogs.filter((u) => u.id !== id))
-                showMessage(`Removed ${title}`, undefined)
-            })
-            .catch((error) =>
-                showMessage(`Failed to remove blog: ${id}`, error)
-            )
+        removeBlogMutation.mutate(id)
     }
 
-    const modifyBlog = (updatedBlog) => {
-        blogService
-            .modifyBlog(updatedBlog)
-            .then((blog) => {
-                setBlogs(blogs.map((b) => (b.id !== blog.id ? b : blog)))
-            })
-            .catch((error) => {
-                if (error.response.data.error.includes('jwt')) {
-                    showMessage('wrong credentials', error)
-                    setUser(undefined)
-                    blogService.setToken(undefined)
-                } else {
-                    showMessage('failed to modify blog', error)
-                }
-            })
+    const createBlog = (newBlog) => {
+        addBlogMutation.mutate(newBlog)
+    }
+
+    const dispatch = useNotificationDispatch()
+    const userDispatch = useUserDispatch()
+
+    const user = useUserValue()
+
+    useEffect(() => {
+        const loggedUserJSON = window.localStorage.getItem(userStorageKey)
+
+        if (loggedUserJSON) {
+            const loggedUser = JSON.parse(loggedUserJSON)
+            userDispatch({ type: 'SET', payload: loggedUser })
+            blogService.setToken(loggedUser.token)
+        }
+    }, [])
+
+    const mainStyle = { margins: 0, padding: 0 }
+
+    const showMessage = (text, error) => {
+        if (error !== undefined) {
+            console.log(error)
+            if (
+                error.response.data.error.includes('jwt') ||
+                error.response.data.error.includes('token expired')
+            ) {
+                text = 'wrong credentials'
+                userDispatch({ type: 'RESET' })
+                blogService.setToken(undefined)
+            }
+        }
+        dispatch({ type: 'SET', payload: [text, error === undefined] })
+        setTimeout(() => {
+            dispatch({ type: 'RESET' })
+        }, 2000)
     }
 
     const logoutHandler = () => {
         window.localStorage.removeItem(userStorageKey)
-        setUser(undefined)
+        userDispatch({ type: 'RESET' })
         blogService.setToken(undefined)
     }
 
@@ -104,7 +134,7 @@ function App() {
                 JSON.stringify(loggedUser)
             )
 
-            setUser(loggedUser)
+            userDispatch({ type: 'SET', payload: loggedUser })
             blogService.setToken(loggedUser.token)
             setUsername('')
             setPassword('')
@@ -125,43 +155,14 @@ function App() {
         setPassword(target.value)
     }
 
-    const createBlog = (newBlog) => {
-        blogService
-            .addBlog(newBlog)
-            .then((blog) => {
-                setBlogs(blogs.concat(blog))
-            })
-            .catch((error) => {
-                if (error.response.data.error.includes('jwt')) {
-                    showMessage('wrong credentials', error)
-                    setUser(undefined)
-                    blogService.setToken(undefined)
-                } else {
-                    showMessage('failed to add blog', error)
-                }
-                return
-            })
-
-        addBlogToggleForm.current.toggleVisibility()
-        showMessage('blog added')
-    }
-
     const cancelAddBlog = () => {
         addBlogForm.current.resetBlog()
-    }
-
-    const messageBox = () => {
-        return (
-            <div style={mainStyle}>
-                <StatusMessage text={message} success={messageStatus} />
-            </div>
-        )
     }
 
     if (user === undefined) {
         return (
             <div style={mainStyle}>
-                {message !== undefined && messageBox()}
+                <StatusMessage />
                 <LoginForm
                     loginHandler={loginHandler}
                     username={username}
@@ -173,6 +174,14 @@ function App() {
         )
     }
 
+    if (!result.isSuccess) {
+        let errorMsg = 'Failed to load blogs'
+        if (result.isLoading) {
+            errorMsg = 'Loading...'
+        }
+        return <div style={mainStyle}>{errorMsg}</div>
+    }
+
     const sortedByLikes = blogs.toSorted((a, b) => b.likes - a.likes)
 
     return (
@@ -181,7 +190,7 @@ function App() {
                 username={user.username}
                 logoutHandler={logoutHandler}
             />
-            {message !== undefined && messageBox()}
+            <StatusMessage />
             <Togglable
                 buttonLabel="add blog"
                 cancelHandler={cancelAddBlog}

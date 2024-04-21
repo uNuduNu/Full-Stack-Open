@@ -23,6 +23,7 @@ describe('Blog tests', () => {
                     id="1"
                     modifyHandler={modifyHandler}
                     removeHandler={removeHandler}
+                    enableRemove={true}
                 />
             )
         }

@@ -22,7 +22,10 @@ const addBlog = (blog) => {
         headers: { Authorization: token }
     }
     const promise = axios.post(baseUrl, blog, config)
-    return promise.then((response) => response.data)
+    return promise.then((response) => {
+        console.log(response)
+        return response.data
+    })
 }
 
 const removeBlog = (id) => {
@@ -31,7 +34,10 @@ const removeBlog = (id) => {
     }
 
     const promise = axios.delete(`${baseUrl}/${id}`, config)
-    return promise.then((response) => response.data)
+    return promise.then((response) => {
+        console.log(response)
+        return response.data
+    })
 }
 
 const modifyBlog = (blog) => {

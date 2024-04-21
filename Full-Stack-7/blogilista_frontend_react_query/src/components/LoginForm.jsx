@@ -22,7 +22,7 @@ const LoginForm = ({
                     ></input>
                     <p style={styles.labelStyle}>password:</p>
                     <input
-                        style={Symbol.inputStyle}
+                        style={styles.inputStyle}
                         value={password ? password : ''}
                         type="password"
                         onChange={passwordHandler}

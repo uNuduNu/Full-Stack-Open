@@ -60,7 +60,7 @@ blogsRouter.delete('/:id', async (request, response) => {
         return response.status(401).json({ error: 'added by another user' })
     }
 
-    response.status(204).end()
+    response.status(200).json({ id: request.params.id })
 })
 
 blogsRouter.put('/:id', async (request, response) => {
