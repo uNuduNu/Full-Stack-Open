@@ -40,7 +40,7 @@ function App() {
 
             showMessage(`Liked ${changedBlog.title}`)
         },
-        onError: (error) => showMessage('Failed to modify blog', error)
+        onError: ({ error }) => showMessage('Failed to modify blog', error)
     })
 
     const removeBlogMutation = useMutation({
@@ -53,7 +53,7 @@ function App() {
             )
             showMessage('Removed blog', undefined)
         },
-        onError: (error) => showMessage('Failed to remove blog', error)
+        onError: ({ error }) => showMessage('Failed to remove blog', error)
     })
 
     const addBlogMutation = useMutation({
@@ -64,7 +64,7 @@ function App() {
             showMessage('blog added')
             addBlogToggleForm.current.toggleVisibility()
         },
-        onError: (error) => showMessage('failed to add blog', error)
+        onError: ({ error }) => showMessage('failed to add blog', error)
     })
 
     const modifyBlog = (updatedBlog) => {
