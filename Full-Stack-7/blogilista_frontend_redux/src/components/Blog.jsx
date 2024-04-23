@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import styles from './styles'
-import { removeBlog, addLike } from '../reducers/blogReducer'
+import { removeBlog, addLike, addComment } from '../reducers/blogReducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { useMatch, useNavigate } from 'react-router-dom'
 
@@ -25,6 +25,8 @@ const Blog = () => {
         matchedBlog !== undefined ? matchedBlog.likes : 0
     )
 
+    const [newComment, setNewComment] = useState('')
+
     if (matchedBlog === undefined) return undefined
 
     const blogListStyle = {
@@ -34,16 +36,7 @@ const Blog = () => {
     }
 
     const addALike = () => {
-        const blog = {
-            title: matchedBlog.title,
-            author: matchedBlog.author,
-            url: matchedBlog.url,
-            likes: addedLikes + 1,
-            id: matchedBlog.id,
-            user: matchedBlog.adder
-        }
-
-        console.log('likes ' + blog.likes)
+        const blog = { ...matchedBlog, likes: addedLikes + 1 }
 
         dispatch(addLike(blog))
 
@@ -56,6 +49,16 @@ const Blog = () => {
         }
         dispatch(removeBlog(id))
         navigate('/')
+    }
+
+    const commentHandler = ({ target }) => {
+        setNewComment(target.value)
+    }
+
+    const commentBlog = (event) => {
+        event.preventDefault()
+        dispatch(addComment(matchedBlog.id, newComment))
+        setNewComment('')
     }
 
     const removeButton = () => {
@@ -74,10 +77,21 @@ const Blog = () => {
         )
     }
 
+    const comments = () => {
+        return (
+            <ul>
+                {matchedBlog.comments.map((c) => (
+                    <li key={c.id}>{c.body}</li>
+                ))}
+            </ul>
+        )
+    }
+
     return (
         <div style={blogListStyle}>
             <h2 data-testid="titlediv">
                 {matchedBlog.title} {matchedBlog.author}
+                {matchedBlog.user.username === loggedUser && removeButton()}
             </h2>
             <a href={matchedBlog.url}>{matchedBlog.url}</a>
             <div>
@@ -91,7 +105,26 @@ const Blog = () => {
                 </button>
             </div>
             <div>{'added by ' + matchedBlog.user.username}</div>
-            {matchedBlog.user.username === loggedUser && removeButton()}
+            <h3>comments</h3>
+            <form onSubmit={commentBlog}>
+                <div style={styles.commentFormStyleformStyle}>
+                    <input
+                        style={styles.inputStyle}
+                        value={newComment}
+                        onChange={commentHandler}
+                        placeholder="comment"
+                    ></input>
+                    <button
+                        style={styles.buttonStyle}
+                        type="submit"
+                        data-testid="add"
+                    >
+                        add comment
+                    </button>
+                </div>
+            </form>
+
+            {matchedBlog.comments !== undefined && comments()}
         </div>
     )
 }

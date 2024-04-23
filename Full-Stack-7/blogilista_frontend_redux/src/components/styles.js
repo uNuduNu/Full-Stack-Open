@@ -21,6 +21,14 @@ const formStyle = {
     margin: 0
 }
 
+const commentFormStyle = {
+    boxSizing: 'border-box',
+    display: 'grid',
+    gridTemplateColumns: '5fr 1fr',
+    padding: 2,
+    margin: 0
+}
+
 const headerStyle = {
     textAlign: 'center'
 }
@@ -48,6 +56,7 @@ export default {
     buttonStyle,
     widebuttonStyle,
     formStyle,
+    commentFormStyle,
     headerStyle,
     labelStyle,
     inputStyle

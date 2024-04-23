@@ -16,6 +16,19 @@ const blogSlice = createSlice({
             const changedBlog = action.payload
             return state.map(b => b.id !== changedBlog.id ? b : changedBlog)
         },
+        setComment(state, action){
+            const id = action.payload.id
+            const comment = { id: action.payload.commentID, body: action.payload.comment }
+            const blogToModify = JSON.parse(JSON.stringify(state.find(b => b.id === id)))
+
+            if (blogToModify.comments === undefined) {
+                blogToModify.comments = []
+            }
+
+            blogToModify.comments.push(comment)
+
+            return state.map(b => b.id !== id ? b : blogToModify)
+        },
         setBlogs(state, action) {
             return action.payload
         },
@@ -103,6 +116,23 @@ export const addLike = blogToLike => {
     }
 }
 
+export const addComment = (blogId, comment) => {
+    return async dispatch => {
+        try {
+            const response = await blogService.addComment(blogId, comment)
+            dispatch(setComment({ id: blogId, commentID: response._id, comment: comment }))
+        } catch (error) {
+            console.log(error)
+            dispatch(
+                setNotification([
+                    'failed to add comment',
+                    error.message
+                ])
+            )
+        }
+    }
+}
+
 export const removeBlog = blogToRemoveId => {
     return async dispatch => {
 
@@ -129,5 +159,5 @@ export const removeBlog = blogToRemoveId => {
     }
 }
 
-export const { addBlog, changeBlog, setBlogs, deleteBlog } = blogSlice.actions
+export const { addBlog, setComment, changeBlog, setBlogs, deleteBlog } = blogSlice.actions
 export default blogSlice.reducer

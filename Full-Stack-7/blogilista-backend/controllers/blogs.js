@@ -37,6 +37,22 @@ blogsRouter.post('/', async (request, response) => {
     response.status(201).json(addedBlog)
 })
 
+blogsRouter.post('/:id/comments', async (request, response) => {
+    const body = request.body
+
+    const blog = await Blog.findById(request.params.id)
+
+    if (blog === undefined) {
+        return response.status(400).json({ error: 'blog not found' })
+    }
+
+    blog.comments = blog.comments.concat({ body: body.comment })
+
+    await blog.save()
+
+    response.status(201).json(blog.comments[blog.comments.length - 1])
+})
+
 blogsRouter.delete('/:id', async (request, response) => {
 
     if (!request.userId) {
