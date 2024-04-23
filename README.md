@@ -1,4 +1,4 @@
-# Full-Stack-Open
+# Full Stack Open
 
 Solutions to the exercises 
 
