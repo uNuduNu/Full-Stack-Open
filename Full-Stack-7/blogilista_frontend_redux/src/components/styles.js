@@ -16,14 +16,20 @@ const widebuttonStyle = {
 const formStyle = {
     boxSizing: 'border-box',
     display: 'grid',
-    gridTemplateColumns: '1fr 5fr',
+    gridTemplateColumns: '1fr',
     padding: 2,
     margin: 0
+}
+
+const wideStyle = {
+    width: '100%',
+    padding: 2
 }
 
 const commentFormStyle = {
     boxSizing: 'border-box',
     display: 'grid',
+    width: '100%',
     gridTemplateColumns: '5fr 1fr',
     padding: 2,
     margin: 0
@@ -59,5 +65,6 @@ export default {
     commentFormStyle,
     headerStyle,
     labelStyle,
-    inputStyle
+    inputStyle,
+    wideStyle
 }

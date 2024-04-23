@@ -31,6 +31,9 @@ const BlogView = () => {
 
     return (
         <div>
+            <h2>Blogs</h2>
+            <BlogList loggedUser={user.username} />
+            <p />
             <Togglable
                 buttonLabel="add blog"
                 cancelHandler={cancelAddBlog}
@@ -38,8 +41,6 @@ const BlogView = () => {
             >
                 <AddBlog createBlog={createNewBlog} ref={addBlogForm} />
             </Togglable>
-            <h2>Blogs</h2>
-            <BlogList loggedUser={user.username} />
         </div>
     )
 }

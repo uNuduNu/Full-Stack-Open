@@ -1,4 +1,5 @@
 import { useSelector } from 'react-redux'
+import { Alert } from '@mui/material'
 
 const StatusMessage = () => {
     const notification = useSelector(({ notification }) => {
@@ -7,17 +8,15 @@ const StatusMessage = () => {
 
     if (notification !== undefined && notification[0] !== '') {
         console.log(notification[0])
-        const messageStyle = {
-            color: 'black',
-            backgroundColor: notification[1] ? 'white' : 'lightgreen',
-            fontSize: 20,
-            border: notification[1] ? '2px solid red' : '1px solid black',
-            borderRadius: 5,
-            padding: 5,
-            margin: 1
-        }
+        console.log(notification[1])
 
-        return <div style={messageStyle}>{notification[0]}</div>
+        return (
+            <Alert
+                severity={notification[1] !== undefined ? 'error' : 'success'}
+            >
+                {notification[0]}
+            </Alert>
+        )
     }
 
     return undefined

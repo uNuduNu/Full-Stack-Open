@@ -1,47 +1,23 @@
-import styles from './styles'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
+import { AppBar, Button, IconButton, Toolbar } from '@mui/material'
 
 const BlogsHeader = ({ username, logoutHandler }) => {
-    const navStyle = {
-        backgroundColor: 'lightgray',
-        boxSizing: 'border-box',
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'left',
-        justifyContent: 'space-between',
-        padding: 4
-    }
-
-    const textStyle = {
-        //        color: '#1CA1C1',
-        margin: 0,
-        border: 0
-    }
-
-    const padding = { paddingRight: 5 }
-
     return (
-        <nav style={navStyle}>
-            <div>
-                <Link to="/" style={padding}>
+        <AppBar position="sticky">
+            <Toolbar>
+                <IconButton edge="start" color="inherit" aria-label="menu" />
+                <Button color="inherit" component={Link} to="/">
                     blogs
-                </Link>
-                <Link to="/users">users</Link>
-            </div>
-            <div>
-                <p style={textStyle}>logged in as {username}</p>
-            </div>
-            <div>
-                <button
-                    style={styles.buttonStyle}
-                    onClick={() => logoutHandler()}
-                    data-testid="logout"
-                >
-                    logout
-                </button>
-            </div>
-        </nav>
+                </Button>
+                <Button color="inherit" component={Link} to="/users">
+                    users
+                </Button>
+                <Button color="inherit" onClick={() => logoutHandler()}>
+                    welcome {username}, logout?
+                </Button>
+            </Toolbar>
+        </AppBar>
     )
 }
 

@@ -3,6 +3,7 @@ import styles from './styles'
 import { removeBlog, addLike, addComment } from '../reducers/blogReducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { useMatch, useNavigate } from 'react-router-dom'
+import { Button, TextField } from '@mui/material'
 
 const Blog = () => {
     const dispatch = useDispatch()
@@ -64,15 +65,15 @@ const Blog = () => {
     const removeButton = () => {
         return (
             <div>
-                <button
-                    style={styles.buttonStyle}
+                <Button
+                    variant="contained"
+                    color="primary"
                     onClick={() =>
                         removeABlog(matchedBlog.title, matchedBlog.id)
                     }
-                    data-testid="delete"
                 >
-                    remove
-                </button>
+                    remove blog
+                </Button>
             </div>
         )
     }
@@ -91,36 +92,43 @@ const Blog = () => {
         <div style={blogListStyle}>
             <h2 data-testid="titlediv">
                 {matchedBlog.title} {matchedBlog.author}
-                {matchedBlog.user.username === loggedUser && removeButton()}
             </h2>
-            <a href={matchedBlog.url}>{matchedBlog.url}</a>
             <div>
-                {'+' + addedLikes}
-                <button
-                    style={styles.buttonStyle}
-                    onClick={() => addALike()}
-                    data-testid="likebutton"
-                >
-                    like
-                </button>
+                <a href={matchedBlog.url}>{matchedBlog.url}</a>
             </div>
             <div>{'added by ' + matchedBlog.user.username}</div>
+            <p />
+            <div>
+                {'+' + addedLikes + ' '}
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => addALike()}
+                >
+                    like
+                </Button>
+            </div>
+            <p />
+            {matchedBlog.user.username === loggedUser && removeButton()}
             <h3>comments</h3>
             <form onSubmit={commentBlog}>
-                <div style={styles.commentFormStyleformStyle}>
-                    <input
-                        style={styles.inputStyle}
+                <div>
+                    <TextField
+                        style={styles.wideStyle}
+                        label="add comment"
                         value={newComment}
                         onChange={commentHandler}
-                        placeholder="comment"
-                    ></input>
-                    <button
-                        style={styles.buttonStyle}
+                    />
+                </div>
+                <div>
+                    <Button
+                        variant="contained"
+                        color="primary"
                         type="submit"
-                        data-testid="add"
+                        style={styles.wideStyle}
                     >
                         add comment
-                    </button>
+                    </Button>
                 </div>
             </form>
 

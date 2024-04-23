@@ -1,6 +1,7 @@
 import { useState, useImperativeHandle, forwardRef } from 'react'
-import styles from './styles'
 import PropTypes from 'prop-types'
+import styles from './styles'
+import { TextField, Button } from '@mui/material'
 
 const AddBlog = forwardRef((props, ref) => {
     const blog = {
@@ -65,51 +66,53 @@ const AddBlog = forwardRef((props, ref) => {
 
     return (
         <div>
-            <h2 style={styles.headerStyle}>Add blog</h2>
+            <h2>Add blog</h2>
             <form onSubmit={addBlog}>
-                <div style={styles.formStyle}>
-                    <p style={styles.labelStyle}>title:</p>
-                    <input
-                        style={styles.inputStyle}
+                <div>
+                    <TextField
+                        style={styles.wideStyle}
+                        label="title"
                         value={newBlog.title}
                         onChange={titleHandler}
-                        placeholder="title"
-                        data-testid="title"
-                    ></input>
-                    <p style={styles.labelStyle}>author:</p>
-                    <input
-                        style={styles.inputStyle}
+                    />
+                </div>
+                <div>
+                    <TextField
+                        style={styles.wideStyle}
+                        label="author"
                         value={newBlog.author}
                         onChange={authorHandler}
-                        placeholder="author"
-                        data-testid="author"
-                    ></input>
-                    <p style={styles.labelStyle}>url:</p>
-                    <input
-                        style={styles.inputStyle}
+                    />
+                </div>
+                <div>
+                    <TextField
+                        style={styles.wideStyle}
+                        label="url"
                         value={newBlog.url}
                         onChange={urlHandler}
-                        placeholder="url"
-                        data-testid="url"
-                    ></input>
-                    <p style={styles.labelStyle}>likes:</p>
-                    <input
-                        style={styles.inputStyle}
+                    />
+                </div>
+                <div>
+                    <TextField
+                        style={styles.wideStyle}
+                        label="likes"
                         type="number"
                         value={newBlog.likes}
                         onChange={likesHandler}
-                        placeholder="likes"
-                        data-testid="likes"
-                    ></input>
+                    />
                 </div>
-                <button
-                    style={styles.widebuttonStyle}
-                    type="submit"
-                    data-testid="add"
-                >
-                    add
-                </button>
+                <div>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                        style={styles.wideStyle}
+                    >
+                        add
+                    </Button>
+                </div>
             </form>
+            <p />
         </div>
     )
 })

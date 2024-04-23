@@ -14,6 +14,7 @@ import { initializeBlogs } from './reducers/blogReducer'
 import { initializeUsers } from './reducers/usersReducer'
 import { setUser } from './reducers/userReducer'
 import { Routes, Route } from 'react-router-dom'
+import { Container } from '@mui/material'
 
 const App = () => {
     const dispatch = useDispatch()
@@ -87,7 +88,7 @@ const App = () => {
 
     if (user === '') {
         return (
-            <div style={mainStyle}>
+            <Container>
                 <StatusMessage />
                 <LoginForm
                     loginHandler={loginHandler}
@@ -96,12 +97,12 @@ const App = () => {
                     password={password}
                     passwordHandler={passwordHandler}
                 />
-            </div>
+            </Container>
         )
     }
 
     return (
-        <div style={mainStyle}>
+        <Container>
             <BlogsHeader username={user} logoutHandler={logoutHandler} />
             <StatusMessage />
             <Routes>
@@ -110,7 +111,7 @@ const App = () => {
                 <Route path="/users" element={<UserView />} />
                 <Route path="/users/:id" element={<UserDetails />} />
             </Routes>
-        </div>
+        </Container>
     )
 }
 

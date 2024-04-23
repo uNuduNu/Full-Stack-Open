@@ -1,5 +1,14 @@
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
+import {
+    TableContainer,
+    Table,
+    TableHead,
+    TableBody,
+    TableRow,
+    TableCell,
+    Paper
+} from '@mui/material'
 
 const UserView = () => {
     const users = useSelector(({ users }) => {
@@ -9,24 +18,28 @@ const UserView = () => {
     return (
         <div>
             <h2>Users</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>blogs created</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map((u) => (
-                        <tr key={u.id}>
-                            <td>
-                                <Link to={`/users/${u.id}`}>{u.username}</Link>
-                            </td>
-                            <td>{u.blogs.length}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell></TableCell>
+                            <TableCell>blogs created</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {users.map((u) => (
+                            <TableRow key={u.id}>
+                                <TableCell>
+                                    <Link to={`/users/${u.id}`}>
+                                        {u.username}
+                                    </Link>
+                                </TableCell>
+                                <TableCell>{u.blogs.length}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </div>
     )
 }
