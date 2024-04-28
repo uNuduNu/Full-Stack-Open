@@ -42,6 +42,30 @@ const Authors = (props) => {
     return <div>loading...</div>;
   }
 
+  const setBornForm = () => {
+    return (
+      <div>
+        <h2>Set birthyear</h2>
+        <form onSubmit={setBirthyear}>
+          <Select
+            defaultValue={selectedName}
+            onChange={setSelectedName}
+            options={options}
+          />
+          <div>
+            born
+            <input
+              type="number"
+              value={born}
+              onChange={({ target }) => setBorn(target.value)}
+            />
+          </div>
+          <button type="submit">update author</button>
+        </form>
+      </div>
+    );
+  };
+
   const authors = result.data.allAuthors;
 
   const options = authors.map((a) => ({
@@ -68,23 +92,7 @@ const Authors = (props) => {
           ))}
         </tbody>
       </table>
-      <h2>Set birthyear</h2>
-      <form onSubmit={setBirthyear}>
-        <Select
-          defaultValue={selectedName}
-          onChange={setSelectedName}
-          options={options}
-        />
-        <div>
-          born
-          <input
-            type="number"
-            value={born}
-            onChange={({ target }) => setBorn(target.value)}
-          />
-        </div>
-        <button type="submit">update author</button>
-      </form>
+      {props.allowSetBorn && setBornForm()}
     </div>
   );
 };
