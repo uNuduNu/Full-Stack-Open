@@ -28,9 +28,24 @@ export const ALL_BOOKS = gql`
         born
       }
       published
+      genres
     }
   }
 `;
+
+export const FAVORITE_BOOKS = gql`
+  query {
+    favoriteBooks {
+      title
+      author {
+        name
+        born
+      }
+      published
+      genres
+    }
+  }
+`
 
 export const ADD_BOOK = gql`
   mutation (

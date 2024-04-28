@@ -38,6 +38,7 @@ const typeDefs = `
   type Query {
     bookCount: Int!
     allBooks(author: String, genre: String): [Book!]!
+    favoriteBooks: [Book!]!
     authorCount: Int!
     allAuthors: [Author!]!
     me: User
@@ -85,6 +86,14 @@ const resolvers = {
 
             const allBooks = await Book.find({}).populate('author', { name: 1, born: 1 })
             return allBooks.filter(b => (args.author !== undefined ? b.author.name === args.author : true) && (args.genre !== undefined ? b.genres.find(g => g === args.genre) : true))
+        },
+        favoriteBooks: async (root, args, context) => {
+            if (!context.currentUser || !context.currentUser.favoriteGenre) {
+                return Book.find({}).populate('author', { name: 1, born: 1 })
+            }
+
+            const allBooks = await Book.find({}).populate('author', { name: 1, born: 1 })
+            return allBooks.filter(b => b.genres.find(g => g === context.currentUser.favoriteGenre))
         },
         authorCount: async () => Author.collection.countDocuments(),
         allAuthors: async () => Author.find({}),
