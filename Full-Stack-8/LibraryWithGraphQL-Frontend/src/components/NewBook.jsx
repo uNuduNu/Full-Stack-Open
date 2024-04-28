@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { ALL_BOOKS, ALL_AUTHORS, ADD_BOOK, FAVORITE_BOOKS } from "./queries";
+import { updateCache } from "../app";
 
 const NewBook = (props) => {
   const [title, setTitle] = useState("");
@@ -10,11 +11,7 @@ const NewBook = (props) => {
   const [genres, setGenres] = useState([]);
   const [addBook] = useMutation(ADD_BOOK, {
     update: (cache, response) => {
-      cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
-        return {
-          allBooks: allBooks.concat(response.data.addBook),
-        };
-      });
+      updateCache(cache, { query: ALL_BOOKS }, response.data.addBook);
     },
     //  instead of running queries, just update the cache locally
     //  logic for the two other queries is in the server...

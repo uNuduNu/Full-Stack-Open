@@ -39,8 +39,6 @@ const Books = (props) => {
     label: ug,
   }));
 
-  console.log(selectedGenre.value);
-
   const filteredBooks =
     selectedGenre.value === "All"
       ? books
