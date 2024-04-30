@@ -1,52 +1,54 @@
-import { parseArguments } from "./utils/argumentParser"
+//import { parseArguments } from "./utils/argumentParser";
 
 export const calculateBmi = (height: number, weight: number): string => {
     // inputs must be > 0
     if (height < 0 || weight < 0) {
-        throw new Error('Height and weight must be > 0')
+        throw new Error('Height and weight must be > 0');
     }
 
     // convert height to meters
-    height /= 100
+    height /= 100;
 
-    const bmi =  weight / (height * height)
+    const bmi =  weight / (height * height);
 
-    let bmiCategory = 'Underweight (Severe thinness)'
+    let bmiCategory = 'Underweight (Severe thinness)';
     if (bmi >= 16.0 && bmi < 17.0) {
-        bmiCategory = 'Underweight (Moderate thinness)'
+        bmiCategory = 'Underweight (Moderate thinness)';
     }
     else if (bmi >= 17.0 && bmi < 18.5) {
-        bmiCategory = 'Underweight (Mild thinness)'
+        bmiCategory = 'Underweight (Mild thinness)';
     }
     else if (bmi >= 18.5 && bmi < 25.0) {
-        bmiCategory = 'Normal (Healthy weight)'
+        bmiCategory = 'Normal (Healthy weight)';
     }
     else if (bmi >= 25.0 && bmi < 30.0) {
-        bmiCategory = 'Overweight (Pre-obese)'
+        bmiCategory = 'Overweight (Pre-obese)';
     }
     else if (bmi >= 30.0 && bmi < 35.0) {
-        bmiCategory = 'Obese (Class I)'
+        bmiCategory = 'Obese (Class I)';
     }
     else if (bmi >= 35.0 && bmi < 40.0) {
-        bmiCategory = 'Obese (Class II)'
+        bmiCategory = 'Obese (Class II)';
     }
     else {
-        bmiCategory = 'Obese (Class III)'
+        bmiCategory = 'Obese (Class III)';
     }
 
 //    return `${bmi} : ${bmiCategory}` 
-    return bmiCategory
-}
+    return bmiCategory;
+};
 
+/*
 try {
-    const { value1, value2 } = parseArguments(process.argv, 4)
+    const { value1, value2 } = parseArguments(process.argv, 4);
     if (typeof value2 === "number") {
-        console.log(calculateBmi(value1, value2))
+        console.log(calculateBmi(value1, value2));
     }
 } catch (error: unknown) {
-    let errorMessage = 'Something bad happened.'
+    let errorMessage = 'Something bad happened.';
     if (error instanceof Error) {
-        errorMessage += ' Error: ' + error.message
+        errorMessage += ' Error: ' + error.message;
     }
-    console.log(errorMessage)
+    console.log(errorMessage);
 }
+*/
