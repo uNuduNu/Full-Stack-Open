@@ -1,6 +1,6 @@
 import { parseArguments } from "./utils/argumentParser"
 
-const calculateBmi = (height: number, weight: number): string => {
+export const calculateBmi = (height: number, weight: number): string => {
     // inputs must be > 0
     if (height < 0 || weight < 0) {
         throw new Error('Height and weight must be > 0')
@@ -34,7 +34,8 @@ const calculateBmi = (height: number, weight: number): string => {
         bmiCategory = 'Obese (Class III)'
     }
 
-    return `${bmi} : ${bmiCategory}` 
+//    return `${bmi} : ${bmiCategory}` 
+    return bmiCategory
 }
 
 try {
