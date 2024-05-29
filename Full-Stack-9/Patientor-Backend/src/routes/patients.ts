@@ -1,6 +1,7 @@
 import express from 'express';
 import patientService from '../services/patientService';
 import toNewPatientEntry from '../utils';
+import { parseEntry } from '../utils';
 
 const router = express.Router();
 
@@ -28,6 +29,27 @@ router.post('/', (req, res) => {
     res.json(addedPatient);
   } catch (error: unknown) {
     let errorMsg = 'Failed to add patient';
+    if (error instanceof Error) {
+      errorMsg += ' Error: ' + error.message;
+    }
+    res.status(400).send(errorMsg);
+  }
+});
+
+router.post('/:id', (req, res) => {
+  try {
+    const newEntry = parseEntry(req.body);
+
+    const addedEntry = patientService.addEntry(newEntry, req.params.id);
+
+    if (addedEntry === undefined) {
+      res.sendStatus(404);
+    }
+    else {  
+      res.json(addedEntry);
+    }
+  } catch (error: unknown) {
+    let errorMsg = 'Failed to add entry';
     if (error instanceof Error) {
       errorMsg += ' Error: ' + error.message;
     }
