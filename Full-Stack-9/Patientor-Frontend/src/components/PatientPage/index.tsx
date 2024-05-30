@@ -1,8 +1,10 @@
-import { Patient, Gender, Entry, HealthCheckRating, Diagnosis, SickLeave, Discharge } from "../../types";
+import { Patient, Gender, Entry, HealthCheckRating, Diagnosis, SickLeave, Discharge, EntryFormValues } from "../../types";
 import { useState, useEffect } from "react";
 import patientService from "../../services/patients";
-import { Box } from "@mui/material";
+import { Alert, Box } from "@mui/material";
 import { MedicalInformation, Work, LocalHospital, Favorite } from "@mui/icons-material";
+import AddEntryForm from "./AddEntryForm";
+import axios from "axios";
 
 interface Props {
     diagnoses: Diagnosis[]
@@ -139,7 +141,7 @@ const PatientEntry = ({ entry, diagnoses }: PatientEntryProps) => {
         case "Hospital":
             return <HospitalEntry entry={entry} diagnoses={diagnoses} diagnosesCodes={entry.diagnosisCodes} discharge={entry.discharge}/>;
         case "OccupationalHealthcare":
-            return <OccupationalHealthcareEntry entry={entry} employer={entry.employerName} diagnosesCodes={entry.diagnosisCodes} diagnoses={diagnoses}/>;
+            return <OccupationalHealthcareEntry entry={entry} employer={entry.employerName} diagnosesCodes={entry.diagnosisCodes} diagnoses={diagnoses} sickLeave={entry.sickLeave}/>;
         default:
             throw new Error(`Unhandled entry ${JSON.stringify(entry)}`);
     }
@@ -147,6 +149,7 @@ const PatientEntry = ({ entry, diagnoses }: PatientEntryProps) => {
 
 const PatientPage = ({ id, diagnoses }: Props ) => {
     const [patient, setPatient] = useState<Patient | null>(null);
+    const [error, setError] = useState<string>();
 
     useEffect( () => {
         const fetchPatient = async (id: string) => {
@@ -159,13 +162,44 @@ const PatientPage = ({ id, diagnoses }: Props ) => {
           setPatient(null);
         }
         
-      }, []);
+      }, [id]);
 
     if (patient === null) {
         return (
             <div></div>
         );
     }
+
+    const submitNewEntry = async (values: EntryFormValues) => {
+        if (id === undefined) {
+            console.error('No patient id');
+
+            return;
+        }
+
+        try {
+            const entry = await patientService.createEntry(id, values);
+            const modifiedPatient = {...patient};
+            modifiedPatient.entries.push(entry);
+            setPatient(modifiedPatient);
+
+            setError('');
+        } catch (e: unknown) {
+            if (axios.isAxiosError(e)) {
+                if (e?.response?.data && typeof e?.response?.data === "string") {
+                    const message = e.response.data.replace('Something went wrong. Error: ', '');
+                    console.error(message);
+                    setError(message);
+                } else {
+                    setError("Unrecognized axios error");
+                }
+            } else {
+                console.error("Unknown error", e);
+                setError("Unknown error");
+            }
+        }
+
+    };
 
     const gender = patient.gender === Gender.Female ? "Female" : patient.gender === Gender.Male ? "Male" : "Other";
 
@@ -185,6 +219,9 @@ const PatientPage = ({ id, diagnoses }: Props ) => {
             <div>
                 {`occupation: ${patient.occupation}`}
             </div>
+            <p></p>
+            {error && <Alert severity="error">{error}</Alert>}
+            <AddEntryForm onSubmit={submitNewEntry} diagnosesCodes={diagnoses.map(d => d.code)}/>
             <h3>entries</h3>
             {patient.entries.map((e: Entry) => (
                 <PatientEntry diagnoses={diagnoses} entry={e} key={e.id}/>

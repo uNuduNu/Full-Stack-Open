@@ -28,6 +28,9 @@ const findById = (id: string): PatientEntry | undefined => {
 const addEntry = (entry: NewEntry, patientId: string): Entry | undefined => {
   const patient = findById(patientId);
 
+  console.log(entry);
+  
+
   if (patient) {
     const newEntry = {
       id: uuid(),

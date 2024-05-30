@@ -178,7 +178,7 @@ export const parseEntry = (entry: unknown): NewEntry => {
         throw new Error('Incorrect or missing data');
     }
 
-    if ('id' in entry && 'description' in entry && 'date' in entry && 'specialist' in entry && 'type' in entry) {
+    if ('description' in entry && 'date' in entry && 'specialist' in entry && 'type' in entry) {
         switch (entry.type) {
             case 'HealthCheck':
                 if ('healthCheckRating' in entry){
@@ -192,7 +192,7 @@ export const parseEntry = (entry: unknown): NewEntry => {
 
                     return newEntry;
                 } else {
-                    throw new Error('Healthcheck rating missing');
+                    throw new Error(`Healthcheck rating missing: ${JSON.stringify(entry)}`);
                 }
                 break;
             case 'Hospital':
@@ -243,7 +243,7 @@ export const parseEntry = (entry: unknown): NewEntry => {
          }
     }
       
-    throw new Error('Incorrect data: fields missing');    
+    throw new Error(`Incorrect data: fields missing: ${JSON.stringify(entry)}`);    
 };
 
 export default toNewPatientEntry;
